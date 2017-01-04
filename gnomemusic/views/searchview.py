@@ -144,8 +144,10 @@ class SearchView(BaseView):
             self.header_bar.searchbar.show_bar(False)
         elif self.model[_iter][11] == 'song':
             if self.model.get_value(_iter, 12) != DiscoveryStatus.FAILED:
-                child_iter = self.songs_model.convert_child_iter_to_iter(_iter)[1]
-                self.player.set_playlist('Search Results', None, self.songs_model, child_iter, 5, 12)
+                child_iter = self.songs_model.convert_child_iter_to_iter(_iter)[
+                                                                         1]
+                self.player.set_playlist(
+                    'Search Results', None, self.songs_model, child_iter, 5, 12)
                 self.player.set_playing(True)
         else:  # Headers
             if self.view.get_generic_view().row_expanded(path):
@@ -156,7 +158,8 @@ class SearchView(BaseView):
     @log
     def _on_selection_mode_changed(self, widget, data=None):
         if self._artistAlbumsWidget is not None and self.get_visible_child() == self._artistAlbumsWidget:
-            self._artistAlbumsWidget.set_selection_mode(self.header_bar._selectionMode)
+            self._artistAlbumsWidget.set_selection_mode(
+                self.header_bar._selectionMode)
 
     @log
     def _add_search_item(self, source, param, item, remaining=0, data=None):
@@ -180,8 +183,10 @@ class SearchView(BaseView):
             self._albums[key].set_composer(composer)
             self._albums[key].set_source(source.get_id())
             self._albums[key].tracks = []
-            self._add_item(source, None, self._albums[key], 0, [self.model, 'album'])
-            self._add_item(source, None, self._albums[key], 0, [self.model, 'artist'])
+            self._add_item(source, None, self._albums[
+                           key], 0, [self.model, 'album'])
+            self._add_item(source, None, self._albums[
+                           key], 0, [self.model, 'artist'])
 
         self._albums[key].tracks.append(item)
         self._add_item(source, None, item, 0, [self.model, 'song'])
@@ -238,16 +243,18 @@ class SearchView(BaseView):
                 [0, 2, 3, 4, 5, 9, 11, 13],
                 [str(item.get_id()), title, artist,
                  self._loading_icon, item, 2, category, composer])
-            self.cache.lookup(item, ArtSize.small, self._on_lookup_ready, _iter)
+            self.cache.lookup(item, ArtSize.small,
+                              self._on_lookup_ready, _iter)
         elif category == 'song':
             _iter = self.model.insert_with_values(
                 self.head_iters[group], -1,
                 [0, 2, 3, 4, 5, 9, 11, 13],
                 [str(item.get_id()), title, artist,
                  self._loading_icon, item,
-                 2 if source.get_id() != 'grl-tracker-source' \
+                 2 if source.get_id() != 'grl-tracker-source'
                     else item.get_favourite(), category, composer])
-            self.cache.lookup(item, ArtSize.small, self._on_lookup_ready, _iter)
+            self.cache.lookup(item, ArtSize.small,
+                              self._on_lookup_ready, _iter)
         else:
             if not artist.casefold() in self._artists:
                 _iter = self.model.insert_with_values(
@@ -257,7 +264,8 @@ class SearchView(BaseView):
                      self._loading_icon, item, 2, category, composer])
                 self.cache.lookup(item, ArtSize.small, self._on_lookup_ready,
                                   _iter)
-                self._artists[artist.casefold()] = {'iter': _iter, 'albums': []}
+                self._artists[artist.casefold()] = {
+                                              'iter': _iter, 'albums': []}
 
             self._artists[artist.casefold()]['albums'].append(item)
 
@@ -289,10 +297,12 @@ class SearchView(BaseView):
 
         cells = cols[0].get_cells()
         cols[0].reorder(cells[0], -1)
-        cols[0].set_cell_data_func(cells[0], self._on_list_widget_selection_render, None)
+        cols[0].set_cell_data_func(
+            cells[0], self._on_list_widget_selection_render, None)
 
     def _on_list_widget_selection_render(self, col, cell, model, _iter, data):
-        cell.set_visible(self.view.get_selection_mode() and model.iter_parent(_iter) is not None)
+        cell.set_visible(self.view.get_selection_mode()
+                         and model.iter_parent(_iter) is not None)
 
     def _on_list_widget_title_render(self, col, cell, model, _iter, data):
         cells = col.get_cells()
@@ -449,20 +459,27 @@ class SearchView(BaseView):
         if search_term == "":
             return
 
-        albums_iter = self.model.insert_with_values(None, -1, [2, 9], [_("Albums"), 2])
-        artists_iter = self.model.insert_with_values(None, -1, [2, 9], [_("Artists"), 2])
-        songs_iter = self.model.insert_with_values(None, -1, [2, 9], [_("Songs"), 2])
-        playlists_iter = self.model.insert_with_values(None, -1, [2, 9], [_("Playlists"), 2])
+        albums_iter = self.model.insert_with_values(
+            None, -1, [2, 9], [_("Albums"), 2])
+        artists_iter = self.model.insert_with_values(
+            None, -1, [2, 9], [_("Artists"), 2])
+        songs_iter = self.model.insert_with_values(
+            None, -1, [2, 9], [_("Songs"), 2])
+        playlists_iter = self.model.insert_with_values(
+            None, -1, [2, 9], [_("Playlists"), 2])
 
-        self.head_iters = [albums_iter, artists_iter, songs_iter, playlists_iter]
-        self.songs_model = self.model.filter_new(self.model.get_path(songs_iter))
+        self.head_iters = [albums_iter,
+                           artists_iter, songs_iter, playlists_iter]
+        self.songs_model = self.model.filter_new(
+            self.model.get_path(songs_iter))
 
         # Use queries for Tracker
         if not grilo.search_source or \
            grilo.search_source.get_id() == 'grl-tracker-source':
             for category in ('album', 'artist', 'song'):
                 query = query_matcher[category][fields_filter](search_term)
-                grilo.populate_custom_query(query, self._add_item, -1, [self.model, category])
+                grilo.populate_custom_query(
+                    query, self._add_item, -1, [self.model, category])
         if not grilo.search_source or \
            grilo.search_source.get_id() != 'grl-tracker-source':
             # nope, can't do - reverting to Search
