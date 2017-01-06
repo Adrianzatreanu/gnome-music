@@ -162,11 +162,13 @@ class DiscBox(Gtk.Box):
         self._model.connect('row-changed', self._model_row_changed)
 
         builder = Gtk.Builder()
-        builder.add_from_resource('/org/gnome/Music/ArtistAlbumWidget.ui')
+        builder.add_from_resource(
+            '/org/gnome/Music/ArtistAlbumWidget.ui')
 
         self._label = builder.get_object('disclabel')
         self._label.set_no_show_all(True)
-        self._disc_songs_flowbox = builder.get_object('discsongsflowbox')
+        self._disc_songs_flowbox = builder.get_object(
+            'discsongsflowbox')
 
         self._selection_mode = False
         self._selection_mode_allowed = True
@@ -348,7 +350,8 @@ class DiscBox(Gtk.Box):
             Gtk.IconSize.SMALL_TOOLBAR)
         song_widget.now_playing_sign.set_no_show_all(True)
         song_widget.can_be_played = True
-        song_widget.connect('button-release-event', self._track_activated)
+        song_widget.connect('button-release-event',
+                            self._track_activated)
 
         song_widget.star_image = builder.get_object('starimage')
         song_widget.star_image.set_favorite(track.get_favourite())

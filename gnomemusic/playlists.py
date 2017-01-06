@@ -32,7 +32,6 @@ from gnomemusic.grilo import grilo
 from gnomemusic.query import Query
 from gettext import gettext as _
 import inspect
-import time
 sparql_dateTime_format = "%Y-%m-%dT%H:%M:%SZ"
 
 from gnomemusic import log
@@ -142,7 +141,9 @@ class Playlists(GObject.GObject):
 
     @log
     def _on_grilo_ready(self, data=None):
-        """For all static playlists: get ID, if exists; if not, create the playlist and get ID."""
+        """For all static playlists: get ID, if exists; if not,
+    create the playlist and get ID.dit
+    """
 
         def playlist_id_fetched_cb(cursor, res, playlist):
             """ Called after the playlist id is fetched """
@@ -215,16 +216,18 @@ class Playlists(GObject.GObject):
             """ Called when the static playlist is created """
             data = obj.update_blank_finish(res)
             playlist_urn = data.get_child_value(0).get_child_value(0).\
-                           get_child_value(0).get_child_value(1).get_string()
+                get_child_value(0).get_child_value(1).get_string()
 
             query = Query.get_playlist_with_urn(playlist_urn)
 
             # Start fetching the playlist
-            self.tracker.query_async(query, None, playlist_queried_cb, playlist)
+            self.tracker.query_async(
+                query, None, playlist_queried_cb, playlist)
 
         def tag_created_cb(obj, res, playlist):
             """ Called when the tag is created """
-            creation_query = Query.create_playlist_with_tag(title, tag_text)
+            creation_query = Query.create_playlist_with_tag(
+                title, tag_text)
 
             # Start creating the playlist itself
             self.tracker.update_blank_async(creation_query, GLib.PRIORITY_LOW,
@@ -237,7 +240,9 @@ class Playlists(GObject.GObject):
 
     @log
     def update_static_playlist(self, playlist):
-        """Given a static playlist (subclass of StaticPlaylists), updates according to its query."""
+        """Given a static playlist (subclass of StaticPlaylists),
+    updates according to its query.
+    """
         # Clear the playlist
         self.clear_playlist(playlist)
 
@@ -285,7 +290,8 @@ class Playlists(GObject.GObject):
             self.tracker.update_blank_async(final_query, GLib.PRIORITY_LOW,
                                             None, None, None)
 
-            # tell system we updated the playlist so playlist is reloaded
+            # tell system we updated the playlist so playlist is
+            # reloaded
             self.emit('playlist-updated', playlist.ID)
 
         # Asynchronously form the playlist's final query
@@ -304,7 +310,7 @@ class Playlists(GObject.GObject):
 
         def cursor_callback(cursor, res, data):
             try:
-                has_next = cursor.next_finish(res)
+                cursor.next_finish(res)
             except GLib.Error as err:
                 logger.warn("Error: %s, %s", err.__class__, err)
                 return
@@ -325,7 +331,8 @@ class Playlists(GObject.GObject):
             cursor.next_async(None, cursor_callback, data)
 
         def update_callback(conn, res, data):
-            playlist_urn = conn.update_blank_finish(res)[0][0]['playlist']
+            playlist_urn = conn.update_blank_finish(res)[0][0][
+                                                    'playlist']
             self.tracker.query_async(
                 Query.get_playlist_with_urn(playlist_urn),
                 None, query_callback, None

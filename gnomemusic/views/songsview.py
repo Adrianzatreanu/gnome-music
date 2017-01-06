@@ -55,7 +55,7 @@ class SongsView(BaseView):
         self._offset = 0
         self._iter_to_clean = None
 
-        view_style  = self.view.get_generic_view().get_style_context()
+        view_style = self.view.get_generic_view().get_style_context()
         view_style.add_class('songs-list')
         view_style.remove_class('content-view')
 
@@ -87,13 +87,14 @@ class SongsView(BaseView):
 
         try:
             itr = self.model.get_iter(path)
-        except ValueError as err :
+        except ValueError as err:
             logger.warn("Error: {}, {}".format(err.__class__, err))
             return
 
         if self.model[itr][8] != self.errorIconName:
-           self.player.set_playlist('Songs', None, self.model, itr, 5, 11)
-           self.player.set_playing(True)
+            self.player.set_playlist(
+                'Songs', None, self.model, itr, 5, 11)
+            self.player.set_playing(True)
 
     @log
     def update_model(self, player, playlist, current_iter):
@@ -150,7 +151,8 @@ class SongsView(BaseView):
 
         column_now_playing = Gtk.TreeViewColumn()
         column_now_playing.set_fixed_width(48)
-        column_now_playing.pack_start(now_playing_symbol_renderer, False)
+        column_now_playing.pack_start(
+            now_playing_symbol_renderer, False)
         column_now_playing.set_cell_data_func(now_playing_symbol_renderer,
                                               self._on_list_widget_icon_render,
                                               None)
@@ -228,7 +230,8 @@ class SongsView(BaseView):
         self._init = True
         if grilo.tracker:
             self.window.push_loading_notification()
-            GLib.idle_add(grilo.populate_songs, self._offset, self._add_item)
+            GLib.idle_add(grilo.populate_songs,
+                          self._offset, self._add_item)
 
     @log
     def get_selected_tracks(self, callback):

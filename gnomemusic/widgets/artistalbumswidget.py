@@ -41,7 +41,8 @@ class ArtistAlbumsWidget(Gtk.Box):
 
     @log
     def __init__(self, artist, albums, player,
-                 header_bar, selection_toolbar, window, selectionModeAllowed=False):
+                 header_bar, selection_toolbar, window,
+                 selectionModeAllowed=False):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL)
         self.player = player
         self.artist = artist
@@ -52,7 +53,8 @@ class ArtistAlbumsWidget(Gtk.Box):
         self.selection_toolbar = selection_toolbar
         self.header_bar = header_bar
         self.ui = Gtk.Builder()
-        self.ui.add_from_resource('/org/gnome/Music/ArtistAlbumsWidget.ui')
+        self.ui.add_from_resource(
+            '/org/gnome/Music/ArtistAlbumsWidget.ui')
         self.set_border_width(0)
         self.ui.get_object('artist').set_label(self.artist)
         self.widgets = []
@@ -72,8 +74,10 @@ class ArtistAlbumsWidget(Gtk.Box):
         self._hbox.pack_start(self.ui.get_object('ArtistAlbumsWidget'),
                               False, False, 0)
         self._hbox.pack_start(self._albumBox, False, False, 16)
-        self._coverSizeGroup = Gtk.SizeGroup.new(Gtk.SizeGroupMode.HORIZONTAL)
-        self._songsGridSizeGroup = Gtk.SizeGroup.new(Gtk.SizeGroupMode.HORIZONTAL)
+        self._coverSizeGroup = Gtk.SizeGroup.new(
+            Gtk.SizeGroupMode.HORIZONTAL)
+        self._songsGridSizeGroup = Gtk.SizeGroup.new(
+            Gtk.SizeGroupMode.HORIZONTAL)
         self.pack_start(self._scrolledWindow, True, True, 0)
 
         self.hide()
@@ -122,7 +126,8 @@ class ArtistAlbumsWidget(Gtk.Box):
         self.widgets.append(widget)
 
         if is_last_album:
-            widget.connect('tracks-loaded', self._on_last_album_displayed)
+            widget.connect('tracks-loaded',
+                           self._on_last_album_displayed)
 
     @log
     def update_model(self, player, playlist, currentIter):
@@ -146,14 +151,17 @@ class ArtistAlbumsWidget(Gtk.Box):
                 itr = playlist.iter_next(itr)
                 continue
 
-            escaped_title = GLib.markup_escape_text(utils.get_media_title(song))
+            escaped_title = GLib.markup_escape_text(
+                utils.get_media_title(song))
             if (song == currentSong):
                 song_widget.now_playing_sign.show()
-                song_widget.title.set_markup('<b>%s</b>' % escaped_title)
+                song_widget.title.set_markup(
+                    '<b>%s</b>' % escaped_title)
                 song_passed = True
             elif (song_passed):
                 song_widget.now_playing_sign.hide()
-                song_widget.title.set_markup('<span>%s</span>' % escaped_title)
+                song_widget.title.set_markup(
+                    '<span>%s</span>' % escaped_title)
             else:
                 song_widget.now_playing_sign.hide()
                 song_widget.title.set_markup(
@@ -168,10 +176,12 @@ class ArtistAlbumsWidget(Gtk.Box):
         while itr:
             song = self._model.get_value(itr, 5)
             song_widget = song.song_widget
-            escaped_title = GLib.markup_escape_text(utils.get_media_title(song))
+            escaped_title = GLib.markup_escape_text(
+                utils.get_media_title(song))
             if song_widget.can_be_played:
                 song_widget.now_playing_sign.hide()
-            song_widget.title.set_markup('<span>%s</span>' % escaped_title)
+            song_widget.title.set_markup(
+                '<span>%s</span>' % escaped_title)
             itr = self._model.iter_next(itr)
         return False
 
@@ -187,7 +197,8 @@ class ArtistAlbumsWidget(Gtk.Box):
                 'row-changed',
                 self._model_row_changed)
         except Exception as e:
-            logger.warning("Exception while tracking row-changed: %s", e)
+            logger.warning(
+                "Exception while tracking row-changed: %s", e)
 
         for widget in self.widgets:
             widget.set_selection_mode(selectionMode)
@@ -204,9 +215,11 @@ class ArtistAlbumsWidget(Gtk.Box):
             ._add_to_playlist_button.set_sensitive(selected_items > 0)
         if selected_items > 0:
             self.header_bar._selection_menu_label.set_text(
-                ngettext("Selected %d item", "Selected %d items", selected_items) % selected_items)
+                ngettext("Selected %d item", "Selected %d items",
+                         selected_items) % selected_items)
         else:
-            self.header_bar._selection_menu_label.set_text(_("Click on items to select them"))
+            self.header_bar._selection_menu_label.set_text(
+                _("Click on items to select them"))
 
     @log
     def select_all(self):

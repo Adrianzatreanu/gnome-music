@@ -30,7 +30,7 @@
 # delete this exception statement from your version.
 
 from gi.repository import Gtk, Gdk, Gio, GLib
-from gettext import gettext as _, ngettext
+from gettext import gettext as _
 
 from gnomemusic import log
 from gnomemusic import TrackerWrapper
@@ -85,7 +85,8 @@ class Window(Gtk.ApplicationWindow):
         self.curr_view = None
 
         size_setting = self.settings.get_value('window-size')
-        if isinstance(size_setting[0], int) and isinstance(size_setting[1], int):
+        if isinstance(size_setting[0], int) and isinstance(
+                            size_setting[1], int):
             self.resize(size_setting[0], size_setting[1])
 
         position_setting = self.settings.get_value('window-position')
@@ -117,7 +118,8 @@ class Window(Gtk.ApplicationWindow):
         def hide_notification_cb(button, self):
             self._loading_notification.set_reveal_child(False)
 
-        grid = Gtk.Grid(margin_bottom=18, margin_start=18, margin_end=18)
+        grid = Gtk.Grid(margin_bottom=18,
+                        margin_start=18, margin_end=18)
         grid.set_column_spacing(18)
         grid.get_style_context().add_class('app-notification')
 
@@ -146,14 +148,16 @@ class Window(Gtk.ApplicationWindow):
                        Gtk.RevealerTransitionType.SLIDE_DOWN)
         self._overlay.add_overlay(self._playlist_notification)
 
-        grid = Gtk.Grid(margin_bottom=18, margin_start=18, margin_end=18)
+        grid = Gtk.Grid(margin_bottom=18,
+                        margin_start=18, margin_end=18)
         grid.set_column_spacing(12)
         grid.get_style_context().add_class('app-notification')
 
         def remove_notification_timeout(self):
             # Remove the timeout if any
             if self._playlist_notification_timeout_id > 0:
-                GLib.source_remove(self._playlist_notification_timeout_id)
+                GLib.source_remove(
+                    self._playlist_notification_timeout_id)
                 self._playlist_notification_timeout_id = 0
 
         # Hide the notification and delete the playlist
@@ -221,32 +225,38 @@ class Window(Gtk.ApplicationWindow):
     @log
     def _on_configure_event(self, widget, event):
         if self.window_size_update_timeout is None:
-            self.window_size_update_timeout = GLib.timeout_add(500, self.store_window_size_and_position, widget)
+            self.window_size_update_timeout = GLib.timeout_add(
+                500, self.store_window_size_and_position, widget)
 
     @log
     def store_window_size_and_position(self, widget):
         size = widget.get_size()
-        self.settings.set_value('window-size', GLib.Variant('ai', [size[0], size[1]]))
+        self.settings.set_value(
+            'window-size', GLib.Variant('ai', [size[0], size[1]]))
 
         position = widget.get_position()
-        self.settings.set_value('window-position', GLib.Variant('ai', [position[0], position[1]]))
+        self.settings.set_value(
+            'window-position', GLib.Variant('ai', [position[0], position[1]]))
         GLib.source_remove(self.window_size_update_timeout)
         self.window_size_update_timeout = None
         return False
 
     @log
     def _on_window_state_event(self, widget, event):
-        self.settings.set_boolean('window-maximized', 'GDK_WINDOW_STATE_MAXIMIZED' in event.new_window_state.value_names)
+        self.settings.set_boolean(
+            'window-maximized', 'GDK_WINDOW_STATE_MAXIMIZED' in (
+                    event.new_window_state.value_names))
 
     @log
     def _grab_media_player_keys(self):
-        self.proxy = Gio.DBusProxy.new_sync(Gio.bus_get_sync(Gio.BusType.SESSION, None),
-                                            Gio.DBusProxyFlags.NONE,
-                                            None,
-                                            'org.gnome.SettingsDaemon',
-                                            '/org/gnome/SettingsDaemon/MediaKeys',
-                                            'org.gnome.SettingsDaemon.MediaKeys',
-                                            None)
+        self.proxy = Gio.DBusProxy.new_sync(
+                Gio.bus_get_sync(Gio.BusType.SESSION, None),
+                                Gio.DBusProxyFlags.NONE,
+                                None,
+                                'org.gnome.SettingsDaemon',
+                                '/org/gnome/SettingsDaemon/MediaKeys',
+                                'org.gnome.SettingsDaemon.MediaKeys',
+                                None)
         self.proxy.call_sync('GrabMediaPlayerKeys',
                              GLib.Variant('(su)', ('Music', 0)),
                              Gio.DBusCallFlags.NONE,
@@ -265,7 +275,9 @@ class Window(Gtk.ApplicationWindow):
     @log
     def _handle_media_keys(self, proxy, sender, signal, parameters):
         if signal != 'MediaPlayerKeyPressed':
-            print('Received an unexpected signal \'%s\' from media player'.format(signal))
+            print(
+                'Received an unexpected signal \'%s\' from media player'.
+                                format(signal))
             return
         response = parameters.get_child_value(1).get_string()
         if 'Play' in response:
@@ -300,7 +312,8 @@ class Window(Gtk.ApplicationWindow):
         self._box.pack_start(self.toolbar.searchbar, False, False, 0)
         self._box.pack_start(self._overlay, True, True, 0)
         self._box.pack_start(self.player.actionbar, False, False, 0)
-        self._box.pack_start(self.selection_toolbar.actionbar, False, False, 0)
+        self._box.pack_start(
+            self.selection_toolbar.actionbar, False, False, 0)
         self.add(self._box)
 
         def songs_available_cb(available):
@@ -315,8 +328,10 @@ class Window(Gtk.ApplicationWindow):
         else:
             self._switch_to_empty_view()
 
-        self.toolbar._search_button.connect('toggled', self._on_search_toggled)
-        self.toolbar.connect('selection-mode-changed', self._on_selection_mode_changed)
+        self.toolbar._search_button.connect(
+            'toggled', self._on_search_toggled)
+        self.toolbar.connect('selection-mode-changed',
+                             self._on_selection_mode_changed)
         self.selection_toolbar._add_to_playlist_button.connect(
             'clicked', self._on_add_to_playlist_button_clicked)
         self.selection_toolbar._remove_from_playlist_button.connect(
@@ -331,7 +346,8 @@ class Window(Gtk.ApplicationWindow):
 
     @log
     def _switch_to_empty_view(self):
-        did_initial_state = self.settings.get_boolean('did-initial-state')
+        did_initial_state = self.settings.get_boolean(
+            'did-initial-state')
         view_class = None
         if did_initial_state:
             view_class = EmptyView
@@ -346,9 +362,11 @@ class Window(Gtk.ApplicationWindow):
     @log
     def _switch_to_player_view(self):
         self.settings.set_boolean('did-initial-state', True)
-        self._on_notify_model_id = self._stack.connect('notify::visible-child', self._on_notify_mode)
+        self._on_notify_model_id = self._stack.connect(
+            'notify::visible-child', self._on_notify_mode)
         self.connect('destroy', self._notify_mode_disconnect)
-        self._key_press_event_id = self.connect('key_press_event', self._on_key_press)
+        self._key_press_event_id = self.connect(
+            'key_press_event', self._on_key_press)
 
         self.views.append(AlbumsView(self, self.player))
         self.views.append(ArtistsView(self, self.player))
@@ -438,7 +456,7 @@ class Window(Gtk.ApplicationWindow):
             # Play / Pause on Ctrl + SPACE
             if (event.keyval == Gdk.KEY_space
                     and event_and_modifiers == Gdk.ModifierType.CONTROL_MASK):
-                 self.player.play_pause()
+                self.player.play_pause()
             # Play previous on Ctrl + B
             if (event.keyval == Gdk.KEY_b
                     and event_and_modifiers == Gdk.ModifierType.CONTROL_MASK):
@@ -465,7 +483,8 @@ class Window(Gtk.ApplicationWindow):
             if (event.keyval == Gdk.KEY_Left and
                     event_and_modifiers == Gdk.ModifierType.MOD1_MASK):
                 if (self.toolbar._state != ToolbarState.MAIN):
-                    self.curr_view.set_visible_child(self.curr_view._grid)
+                    self.curr_view.set_visible_child(
+                        self.curr_view._grid)
                     self.toolbar.set_state(ToolbarState.MAIN)
             # Go to Albums view on Ctrl + 1
             if (event.keyval == Gdk.KEY_1
@@ -500,7 +519,7 @@ class Window(Gtk.ApplicationWindow):
                 and not event.keyval == Gdk.KEY_space)
                 and GLib.unichar_isprint(chr(key_unic))
                 and (event_and_modifiers == Gdk.ModifierType.SHIFT_MASK
-                    or event_and_modifiers == 0)):
+                     or event_and_modifiers == 0)):
             self.toolbar.searchbar.show_bar(True)
 
     @log
@@ -514,7 +533,9 @@ class Window(Gtk.ApplicationWindow):
         self.curr_view = stack.get_visible_child()
 
         # Switch to all albums view when we're clicking Albums
-        if self.curr_view == self.views[0] and not (self.prev_view == self.views[4] or self.prev_view == self.views[5]):
+        if self.curr_view == self.views[0] and not (
+            self.prev_view == self.views[4] or (
+                self.prev_view == self.views[5])):
             self.curr_view.set_visible_child(self.curr_view._grid)
 
         # Slide out sidebar on switching to Artists or Playlists view
@@ -540,13 +561,17 @@ class Window(Gtk.ApplicationWindow):
         self.toolbar.searchbar.show_bar(button.get_active(),
                                         self.curr_view != self.views[4])
         if (not button.get_active() and
-                (self.curr_view == self.views[4] or self.curr_view == self.views[5])):
+                (self.curr_view == self.views[4] or (
+                    self.curr_view == self.views[5]))):
             if self.toolbar._state == ToolbarState.MAIN:
                 # We should get back to the view before the search
-                self._stack.set_visible_child(self.views[4].previous_view)
+                self._stack.set_visible_child(
+                    self.views[4].previous_view)
             elif (self.views[4].previous_view == self.views[0] and
-                 self.curr_view.get_visible_child() != self.curr_view._albumWidget and
-                 self.curr_view.get_visible_child() != self.curr_view._artistAlbumsWidget):
+                  self.curr_view.get_visible_child() != (
+                  self.curr_view._albumWidget) and
+                  self.curr_view.get_visible_child() != (
+                  self.curr_view._artistAlbumsWidget)):
                 self._stack.set_visible_child(self.views[0])
 
             if self.toolbar._selectionMode:
@@ -557,9 +582,12 @@ class Window(Gtk.ApplicationWindow):
         if self.toolbar._selectionMode is False:
             self._on_changes_pending()
         else:
-            in_playlist = self._stack.get_visible_child() == self.views[3]
-            self.selection_toolbar._add_to_playlist_button.set_visible(not in_playlist)
-            self.selection_toolbar._remove_from_playlist_button.set_visible(in_playlist)
+            in_playlist = self._stack.get_visible_child() == self.views[
+                                                        3]
+            self.selection_toolbar._add_to_playlist_button.set_visible(
+                not in_playlist)
+            self.selection_toolbar._remove_from_playlist_button.set_visible(
+                in_playlist)
 
     @log
     def _on_add_to_playlist_button_clicked(self, widget):
@@ -602,6 +630,7 @@ class Window(Gtk.ApplicationWindow):
         running. If there is no notification is visible, the loading
         notification is started.
         """
+
         def show_notification_cb(self):
             self._loading_notification.set_reveal_child(True)
             self._show_notification_timeout_id = 0

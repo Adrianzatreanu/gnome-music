@@ -96,7 +96,8 @@ class ArtistsView(BaseView):
         self.text_renderer = Gd.StyledTextRenderer(
             xpad=16, ypad=16, ellipsize=Pango.EllipsizeMode.END, xalign=0.0,
             width=220)
-        list_widget.add_renderer(self.text_renderer, lambda *args: None, None)
+        list_widget.add_renderer(
+            self.text_renderer, lambda *args: None, None)
         cols[0].clear_attributes(self.text_renderer)
         cols[0].add_attribute(self.text_renderer, 'text', 2)
 
@@ -116,7 +117,7 @@ class ArtistsView(BaseView):
 
         if widget:
             artist_widget_model = self.player.running_playlist('Artist',
-                                                                widget.artist)
+                                                               widget.artist)
             artist_stack = self._artist_albums_stack
             # FIXME: calling to private model
             if widget._model == artist_widget_model:

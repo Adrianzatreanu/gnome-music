@@ -38,6 +38,7 @@ sparql_midnight_dateTime_format = "%Y-%m-%dT00:00:00Z"
 SECONDS_PER_DAY = 86400
 PUNCTUATION_FILTER = " !\\\"#$%&'()*+,-./:;<=>?@[\\\\]^_`{|}~"
 
+
 class Query():
 
     music_folder = None
@@ -46,17 +47,20 @@ class Query():
     @log
     def __init__(self):
         try:
-            Query.music_folder = GLib.get_user_special_dir(GLib.UserDirectory.DIRECTORY_MUSIC)
+            Query.music_folder = GLib.get_user_special_dir(
+                GLib.UserDirectory.DIRECTORY_MUSIC)
             assert Query.music_folder is not None
         except (TypeError, AssertionError):
             logger.warn("XDG Music dir is not set")
             return
 
-        Query.MUSIC_URI = Tracker.sparql_escape_string(GLib.filename_to_uri(Query.music_folder))
+        Query.MUSIC_URI = Tracker.sparql_escape_string(
+            GLib.filename_to_uri(Query.music_folder))
 
         for folder in [Query.music_folder]:
             if os.path.islink(folder):
-                logger.warn("%s is a symlink, this folder will be omitted", folder)
+                logger.warn(
+                    "%s is a symlink, this folder will be omitted", folder)
 
     def __repr__(self):
         return '<Query>'
@@ -122,7 +126,7 @@ class Query():
     {
         ?song a nmm:MusicPiece ;
               a nfo:FileDataObject ;
-	      nie:url ?url .
+          nie:url ?url .
         FILTER(STRSTARTS(?url, '%(music_dir)s/'))
     }
     """.replace('\n', ' ').strip() % {
@@ -339,7 +343,8 @@ class Query():
          nfo:listPosition(?entry)
     """.replace('\n', ' ').strip() % {
             'playlist_id': playlist_id,
-            'filter_clause': filter_clause or 'tracker:id(?playlist) = ' + playlist_id,
+            'filter_clause': filter_clause or 'tracker:id(?playlist) = ' + (
+                                playlist_id),
             'music_dir': Query.MUSIC_URI
         }
 
@@ -437,7 +442,8 @@ class Query():
 
     @staticmethod
     def create_playlist_with_tag(title, tag_text):
-        # TODO: make this an extension of 'create playlist' rather than its own func.?
+        # TODO: make this an extension of 'create playlist' rather
+        # than its own func.?
         # TODO: CREATE TAG IF IT DOESN'T EXIST!
         query = """
     INSERT {
@@ -706,15 +712,18 @@ class Query():
 
     @staticmethod
     def get_recently_played_songs():
-            #TODO: or this could take comparison date as an argument so we don't need to make a date string in query.py...
-            #TODO: set time interval somewhere? A settings file? (Default is maybe 2 weeks...?)
+            # TODO: or this could take comparison date as an argument so
+        # we don't need to make a date string in query.py...
+            # TODO: set time interval somewhere? A settings file? (Default is
+            # maybe 2 weeks...?)
 
-            days_difference = 7  # currently hardcoding time interval of 7 days
-            seconds_difference = days_difference * SECONDS_PER_DAY
-            compare_date = time.strftime(
-                sparql_midnight_dateTime_format, time.gmtime(time.time() - seconds_difference))
+        days_difference = 7  # currently hardcoding time interval of 7 days
+        seconds_difference = days_difference * SECONDS_PER_DAY
+        compare_date = time.strftime(
+            sparql_midnight_dateTime_format, time.gmtime(
+                    time.time() - seconds_difference))
 
-            query = """
+        query = """
             SELECT ?url
             WHERE {
                 ?song a nmm:MusicPiece ;
@@ -726,16 +735,18 @@ class Query():
                          && STRSTARTS(?url, '%(music_dir)s') )
             } ORDER BY DESC(?last_played) LIMIT 50
             """.replace('\n', ' ').strip() % {
-                'compare_date': compare_date,
-                'music_dir': Query.MUSIC_URI
-            }
+            'compare_date': compare_date,
+            'music_dir': Query.MUSIC_URI
+        }
 
-            return query
+        return query
 
     @staticmethod
     def get_recently_added_songs():
-        #TODO: or this could take comparison date as an argument so we don't need to make a date string in query.py...
-        #TODO: set time interval somewhere? A settings file? (Default is maybe 2 weeks...?)
+        # TODO: or this could take comparison date as an argument so we don't
+        # need to make a date string in query.py...
+        # TODO: set time interval somewhere? A settings file? (Default is maybe
+        # 2 weeks...?)
 
         days_difference = 7  # currently hardcoding time interval of 7 days
         seconds_difference = days_difference * SECONDS_PER_DAY
@@ -781,7 +792,8 @@ class Query():
     # TODO: make those queries actually return something
     @staticmethod
     def get_albums_with_any_match(name):
-        name = Tracker.sparql_escape_string(GLib.utf8_normalize(GLib.utf8_casefold(name, -1), -1, GLib.NormalizeMode.NFKD))
+        name = Tracker.sparql_escape_string(GLib.utf8_normalize(
+            GLib.utf8_casefold(name, -1), -1, GLib.NormalizeMode.NFKD))
         query = """
             {
                 SELECT DISTINCT
@@ -808,14 +820,16 @@ class Query():
     @staticmethod
     def get_albums_with_artist_match(name):
         name = Tracker.sparql_escape_string(name)
-        query = """?performer fts:match '"nmm:artistName" : %(name)s*' . """.replace('\n', ' ').strip() % {'name': name}
+        query = """?performer fts:match '"nmm:artistName" : %(name)s*' . """.replace(
+            '\n', ' ').strip() % {'name': name}
 
         return Query.albums(query)
 
     @staticmethod
     def get_albums_with_album_match(name):
         name = Tracker.sparql_escape_string(name)
-        query = """?album fts:match '"nie:title" : %(name)s*' . """.replace('\n', ' ').strip() % {'name': name}
+        query = """?album fts:match '"nie:title" : %(name)s*' . """.replace(
+            '\n', ' ').strip() % {'name': name}
 
         return Query.albums(query)
 
@@ -834,13 +848,15 @@ class Query():
     @staticmethod
     def get_albums_with_track_match(name):
         name = Tracker.sparql_escape_string(name)
-        query = """?song fts:match '"nie:title" : %(name)s*' . """.replace('\n', ' ').strip() % {'name': name}
+        query = """?song fts:match '"nie:title" : %(name)s*' . """.replace(
+            '\n', ' ').strip() % {'name': name}
 
         return Query.albums(query)
 
     @staticmethod
     def get_artists_with_any_match(name):
-        name = Tracker.sparql_escape_string(GLib.utf8_normalize(GLib.utf8_casefold(name, -1), -1, GLib.NormalizeMode.NFKD))
+        name = Tracker.sparql_escape_string(GLib.utf8_normalize(
+            GLib.utf8_casefold(name, -1), -1, GLib.NormalizeMode.NFKD))
         query = """
             {
                 SELECT DISTINCT
@@ -867,14 +883,16 @@ class Query():
     @staticmethod
     def get_artists_with_artist_match(name):
         name = Tracker.sparql_escape_string(name)
-        query = """?performer fts:match '"nmm:artistName" : %(name)s*' . """.replace('\n', ' ').strip() % {'name': name}
+        query = """?performer fts:match '"nmm:artistName" : %(name)s*' . """.replace(
+            '\n', ' ').strip() % {'name': name}
 
         return Query.artists(query)
 
     @staticmethod
     def get_artists_with_album_match(name):
         name = Tracker.sparql_escape_string(name)
-        query = """?album fts:match '"nie:title" : %(name)s*' . """.replace('\n', ' ').strip() % {'name': name}
+        query = """?album fts:match '"nie:title" : %(name)s*' . """.replace(
+            '\n', ' ').strip() % {'name': name}
 
         return Query.artists(query)
 
@@ -893,13 +911,15 @@ class Query():
     @staticmethod
     def get_artists_with_track_match(name):
         name = Tracker.sparql_escape_string(name)
-        query = """?song fts:match '"nie:title" : %(name)s*' . """.replace('\n', ' ').strip() % {'name': name}
+        query = """?song fts:match '"nie:title" : %(name)s*' . """.replace(
+            '\n', ' ').strip() % {'name': name}
 
         return Query.artists(query)
 
     @staticmethod
     def get_songs_with_any_match(name):
-        name = Tracker.sparql_escape_string(GLib.utf8_normalize(GLib.utf8_casefold(name, -1), -1, GLib.NormalizeMode.NFKD))
+        name = Tracker.sparql_escape_string(GLib.utf8_normalize(
+            GLib.utf8_casefold(name, -1), -1, GLib.NormalizeMode.NFKD))
         query = """
             {
                 SELECT DISTINCT
@@ -926,14 +946,16 @@ class Query():
     @staticmethod
     def get_songs_with_artist_match(name):
         name = Tracker.sparql_escape_string(name)
-        query = """?performer fts:match '"nmm:artistName" : %(name)s*' . """.replace('\n', ' ').strip() % {'name': name}
+        query = """?performer fts:match '"nmm:artistName" : %(name)s*' . """.replace(
+            '\n', ' ').strip() % {'name': name}
 
         return Query.songs(query)
 
     @staticmethod
     def get_songs_with_album_match(name):
         name = Tracker.sparql_escape_string(name)
-        query = """?album fts:match '"nie:title" : %(name)s*' . """.replace('\n', ' ').strip() % {'name': name}
+        query = """?album fts:match '"nie:title" : %(name)s*' . """.replace(
+            '\n', ' ').strip() % {'name': name}
 
         return Query.songs(query)
 
@@ -952,7 +974,8 @@ class Query():
     @staticmethod
     def get_songs_with_track_match(name):
         name = Tracker.sparql_escape_string(name)
-        query = """?song fts:match '"nie:title" : %(name)s*' . """.replace('\n', ' ').strip() % {'name': name}
+        query = """?song fts:match '"nie:title" : %(name)s*' . """.replace(
+            '\n', ' ').strip() % {'name': name}
 
         return Query.songs(query)
 
@@ -1004,7 +1027,7 @@ class Query():
                 FILTER ( tracker:id(?urn) = "%(media_id)s" )
             }
         """.replace('\n', '').strip() % {
-            'media_id' : media_id
+            'media_id': media_id
         }
 
         return query

@@ -60,20 +60,24 @@ def log(fn):
             elapsed_time = ', took %02f' % elapsed
         if elapsed_time or retval is not None:
             if 'rateLimitedFunction' not in name:
-                logger.debug("%s  returned %s%s", '|' * tabbing, repr(retval), elapsed_time)
+                logger.debug("%s  returned %s%s", '|' * tabbing,
+                             repr(retval), elapsed_time)
 
         return retval
     return wrapped
 
 
 class TrackerWrapper:
+
     class __TrackerWrapper:
+
         def __init__(self):
             try:
                 self.tracker = Tracker.SparqlConnection.get(None)
             except Exception as e:
                 from sys import exit
-                logger.error("Cannot connect to tracker, error '%s'\Exiting", str(e))
+                logger.error(
+                    "Cannot connect to tracker, error '%s'\Exiting", str(e))
                 exit(1)
 
         def __str__(self):

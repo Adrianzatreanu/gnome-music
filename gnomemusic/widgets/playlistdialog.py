@@ -22,7 +22,11 @@
 # code, but you are not obligated to do so.  If you do not wish to do so,
 # delete this exception statement from your version.
 
-from gi.repository import Gtk, Gd, GLib, Pango, Gio
+from gi.repository import GLib
+from gi.repository import Gd
+from gi.repository import Gio
+from gi.repository import Gtk
+from gi.repository import Pango
 
 from gnomemusic import log
 from gnomemusic.grilo import grilo
@@ -58,13 +62,17 @@ class PlaylistDialog():
         self._cancel_button = self.ui.get_object('cancel-button')
         self._select_button = self.ui.get_object('select-button')
         self._select_button.set_sensitive(False)
-        self._cancel_button.connect('clicked', self._on_cancel_button_clicked)
+        self._cancel_button.connect(
+            'clicked', self._on_cancel_button_clicked)
         self._select_button.connect('clicked', self._on_selection)
 
-        self._new_playlist_button = self.ui.get_object('new-playlist-button')
-        self._new_playlist_button.connect('clicked', self._on_editing_done)
+        self._new_playlist_button = self.ui.get_object(
+            'new-playlist-button')
+        self._new_playlist_button.connect(
+            'clicked', self._on_editing_done)
 
-        self._new_playlist_entry = self.ui.get_object('new-playlist-entry')
+        self._new_playlist_entry = self.ui.get_object(
+            'new-playlist-entry')
         self._new_playlist_entry.connect('changed',
                                          self._on_new_playlist_entry_changed)
         self._new_playlist_entry.connect('activate',
@@ -73,7 +81,8 @@ class PlaylistDialog():
                                          self._on_new_playlist_entry_focused)
 
         self.playlist = Playlists.get_default()
-        self.playlist.connect('playlist-created', self._on_playlist_created)
+        self.playlist.connect('playlist-created',
+                              self._on_playlist_created)
 
     @log
     def get_selected(self):
@@ -95,7 +104,8 @@ class PlaylistDialog():
         )
         cols.pack_start(type_renderer, True)
         cols.add_attribute(type_renderer, "text", 0)
-        cols.set_cell_data_func(type_renderer, self._on_list_text_render)
+        cols.set_cell_data_func(
+            type_renderer, self._on_list_text_render)
         self.view.append_column(cols)
 
     @log
@@ -158,11 +168,11 @@ class PlaylistDialog():
         else:
             self._select_button.set_sensitive(True)
 
-
     @log
     def _on_editing_done(self, sender, data=None):
         if self._new_playlist_entry.get_text() != '':
-            self.playlist.create_playlist(self._new_playlist_entry.get_text())
+            self.playlist.create_playlist(
+                self._new_playlist_entry.get_text())
 
     @log
     def _on_playlist_created(self, playlists, item):

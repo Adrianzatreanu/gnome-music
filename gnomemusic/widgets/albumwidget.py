@@ -23,7 +23,13 @@
 # delete this exception statement from your version.
 
 from gettext import gettext as _, ngettext
-from gi.repository import Gd, Gdk, GdkPixbuf, GLib, GObject, Gtk, Pango
+from gi.repository import GLib
+from gi.repository import GObject
+from gi.repository import Gd
+from gi.repository import Gdk
+from gi.repository import GdkPixbuf
+from gi.repository import Gtk
+from gi.repository import Pango
 
 from gnomemusic import log
 from gnomemusic.albumartcache import AlbumArtCache, DefaultIcon, ArtSize
@@ -72,13 +78,15 @@ class AlbumWidget(Gtk.EventBox):
         self._selection_mode = False
 
         self._builder = Gtk.Builder()
-        self._builder.add_from_resource('/org/gnome/Music/AlbumWidget.ui')
+        self._builder.add_from_resource(
+            '/org/gnome/Music/AlbumWidget.ui')
         self._create_model()
         self._album = None
         self._header_bar = None
         self._selection_mode_allowed = True
 
-        self._composer_label = self._builder.get_object('composer_label')
+        self._composer_label = self._builder.get_object(
+            'composer_label')
         self._composer_info = self._builder.get_object('composer_info')
 
         view_box = self._builder.get_object('view')
@@ -162,18 +170,22 @@ class AlbumWidget(Gtk.EventBox):
         # FIXME: use utils
         escaped_artist = GLib.markup_escape_text(artist)
         escaped_album = GLib.markup_escape_text(album)
-        self._builder.get_object('artist_label').set_markup(escaped_artist)
-        self._builder.get_object('title_label').set_markup(escaped_album)
+        self._builder.get_object(
+            'artist_label').set_markup(escaped_artist)
+        self._builder.get_object(
+            'title_label').set_markup(escaped_album)
 
         if (item.get_creation_date()):
             self._builder.get_object('released_label_info').set_text(
                 str(item.get_creation_date().get_year()))
         else:
-            self._builder.get_object('released_label_info').set_text('----')
+            self._builder.get_object(
+                'released_label_info').set_text('----')
 
         self._set_composer_label(item)
 
-        self._player.connect('playlist-item-changed', self._update_model)
+        self._player.connect(
+            'playlist-item-changed', self._update_model)
 
     @log
     def _set_composer_label(self, item):
@@ -232,7 +244,8 @@ class AlbumWidget(Gtk.EventBox):
         disc_box.set_columns(1)
         disc_box.show_song_numbers(False)
         disc_box.connect('track-activated', self._track_activated)
-        disc_box.connect('selection-toggle', self._selection_mode_toggled)
+        disc_box.connect('selection-toggle',
+                         self._selection_mode_toggled)
 
         return disc_box
 
@@ -243,7 +256,6 @@ class AlbumWidget(Gtk.EventBox):
 
         self._selection_mode = not self._selection_mode
         self._on_selection_mode_request()
-
 
     @log
     def _track_activated(self, widget, song_widget):
@@ -327,11 +339,13 @@ class AlbumWidget(Gtk.EventBox):
             song = playlist[_iter][5]
             song_widget = song.song_widget
             self._duration += song.get_duration()
-            escaped_title = GLib.markup_escape_text(utils.get_media_title(song))
+            escaped_title = GLib.markup_escape_text(
+                utils.get_media_title(song))
 
             if (song == current_song):
                 song_widget.now_playing_sign.show()
-                song_widget.title.set_markup("<b>{}</b>".format(escaped_title))
+                song_widget.title.set_markup(
+                    "<b>{}</b>".format(escaped_title))
                 song_passed = True
             elif (song_passed):
                 song_widget.now_playing_sign.hide()

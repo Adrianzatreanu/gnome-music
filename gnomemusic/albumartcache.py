@@ -33,7 +33,6 @@ from math import pi
 import os
 
 import cairo
-from gettext import gettext as _
 import gi
 gi.require_version('MediaArt', '2.0')
 from gi.repository import Gdk, GdkPixbuf, Gio, GLib, GObject, Gtk, MediaArt
@@ -67,9 +66,12 @@ def _make_icon_frame(pixbuf, art_size=None, scale=1):
 
     # draw outline
     ctx.new_sub_path()
-    ctx.arc(w - radius, radius, radius - 0.5, -90 * degrees, 0 * degrees)
-    ctx.arc(w - radius, h - radius, radius - 0.5, 0 * degrees, 90 * degrees)
-    ctx.arc(radius, h - radius, radius - 0.5, 90 * degrees, 180 * degrees)
+    ctx.arc(w - radius, radius, radius -
+            0.5, -90 * degrees, 0 * degrees)
+    ctx.arc(w - radius, h - radius, radius -
+            0.5, 0 * degrees, 90 * degrees)
+    ctx.arc(radius, h - radius, radius -
+            0.5, 90 * degrees, 180 * degrees)
     ctx.arc(radius, radius, radius - 0.5, 180 * degrees, 270 * degrees)
     ctx.close_path()
     ctx.set_line_width(0.6)
@@ -139,7 +141,8 @@ class DefaultIcon(GObject.GObject):
         height = art_size.height * self._scale
 
         icon = Gtk.IconTheme.get_default().load_icon(icon_type.value,
-                                                     max(width, height) / 4,
+                                                     max(width,
+                                                         height) / 4,
                                                      0)
 
         # create an empty pixbuf with the requested size
@@ -201,10 +204,12 @@ class AlbumArtCache(GObject.GObject):
         GObject.GObject.__init__(self)
         self._scale = scale
 
-        self.cache_dir = os.path.join(GLib.get_user_cache_dir(), 'media-art')
+        self.cache_dir = os.path.join(
+            GLib.get_user_cache_dir(), 'media-art')
         if not os.path.exists(self.cache_dir):
             try:
-                Gio.file_new_for_path(self.cache_dir).make_directory(None)
+                Gio.file_new_for_path(
+                    self.cache_dir).make_directory(None)
             except Exception as err:
                 logger.warn("Error: %s, %s", err.__class__, err)
                 return
@@ -256,7 +261,8 @@ class AlbumArtCache(GObject.GObject):
                 surface = DefaultIcon(self._scale).get(DefaultIcon.Type.music,
                                                        art_size)
             else:
-                surface = _make_icon_frame(pixbuf, art_size, self._scale)
+                surface = _make_icon_frame(
+                    pixbuf, art_size, self._scale)
 
                 # Sets the thumbnail location for MPRIS to use.
                 item.set_thumbnail(GLib.filename_to_uri(thumb_file.get_path(),
@@ -311,7 +317,8 @@ class AlbumArtCache(GObject.GObject):
                 art_retrieved(False)
                 return
 
-            success, cache_path = MediaArt.get_path(artist, album, "album")
+            success, cache_path = MediaArt.get_path(
+                artist, album, "album")
             try:
                 # FIXME: I/O blocking
                 MediaArt.file_to_jpeg(tmp_file.get_path(), cache_path)

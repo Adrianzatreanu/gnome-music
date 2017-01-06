@@ -42,7 +42,8 @@ class BaseView(Gtk.Stack):
         return '<BaseView>'
 
     @log
-    def __init__(self, name, title, window, view_type, use_sidebar=False, sidebar=None):
+    def __init__(self, name, title, window,
+                 view_type, use_sidebar=False, sidebar=None):
         Gtk.Stack.__init__(self,
                            transition_type=Gtk.StackTransitionType.CROSSFADE)
         self._grid = Gtk.Grid(orientation=Gtk.Orientation.HORIZONTAL)
@@ -110,7 +111,6 @@ class BaseView(Gtk.Stack):
             DefaultIcon.Type.loading,
             ArtSize.medium)
 
-
         self._init = False
         grilo.connect('ready', self._on_grilo_ready)
         self.selection_socket = None
@@ -129,13 +129,16 @@ class BaseView(Gtk.Stack):
         self.view = Gd.MainView(shadow_type=Gtk.ShadowType.NONE)
         self.view.set_view_type(view_type)
 
-        self.view.click_handler = self.view.connect('item-activated', self._on_item_activated)
-        self.view.connect('selection-mode-request', self._on_selection_mode_request)
+        self.view.click_handler = self.view.connect(
+            'item-activated', self._on_item_activated)
+        self.view.connect('selection-mode-request',
+                          self._on_selection_mode_request)
 
         self.view.bind_property('selection-mode', self, 'selection_mode',
                                 GObject.BindingFlags.BIDIRECTIONAL)
 
-        self.view.connect('view-selection-changed', self._on_view_selection_changed)
+        self.view.connect('view-selection-changed',
+                          self._on_view_selection_changed)
 
         self._box.pack_start(self.view, True, True, 0)
 
@@ -147,11 +150,14 @@ class BaseView(Gtk.Stack):
             self.header_bar.set_selection_mode(True)
             self.player.actionbar.set_visible(False)
             self.selection_toolbar.actionbar.set_visible(True)
-            self.selection_toolbar._add_to_playlist_button.set_sensitive(False)
-            self.selection_toolbar._remove_from_playlist_button.set_sensitive(False)
+            self.selection_toolbar._add_to_playlist_button.set_sensitive(
+                False)
+            self.selection_toolbar._remove_from_playlist_button.set_sensitive(
+                False)
         else:
             self.header_bar.set_selection_mode(False)
-            self.player.actionbar.set_visible(self.player.currentTrack is not None)
+            self.player.actionbar.set_visible(
+                self.player.currentTrack is not None)
             self.selection_toolbar.actionbar.set_visible(False)
             self.unselect_all()
 
@@ -164,7 +170,8 @@ class BaseView(Gtk.Stack):
     def _on_grilo_ready(self, data=None):
         # FIXME: with async changes in Window this seems never to be
         # called anymore. Fix it proper or remove.
-        if (self.header_bar.get_stack().get_visible_child() == self and not self._init):
+        if self.header_bar.get_stack().get_visible_child() == self and not (
+                                self._init):
             self._populate()
         self.header_bar.get_stack().connect('notify::visible-child',
                                             self._on_headerbar_visible)
@@ -190,9 +197,11 @@ class BaseView(Gtk.Stack):
             set_sensitive(n_items > 0)
         if n_items > 0:
             self.header_bar._selection_menu_label.set_text(
-                ngettext("Selected %d item", "Selected %d items", n_items) % n_items)
+                ngettext("Selected %d item", "Selected %d items",
+                         n_items) % n_items)
         else:
-            self.header_bar._selection_menu_label.set_text(_("Click on items to select them"))
+            self.header_bar._selection_menu_label.set_text(
+                _("Click on items to select them"))
 
     @log
     def _populate(self, data=None):
@@ -284,8 +293,10 @@ class BaseView(Gtk.Stack):
         count = self._set_selection(True)
 
         if count > 0:
-            self.selection_toolbar._add_to_playlist_button.set_sensitive(True)
-            self.selection_toolbar._remove_from_playlist_button.set_sensitive(True)
+            self.selection_toolbar._add_to_playlist_button.set_sensitive(
+                True)
+            self.selection_toolbar._remove_from_playlist_button.set_sensitive(
+                True)
 
         self.update_header_from_selection(count)
         self.view.queue_draw()
@@ -294,7 +305,10 @@ class BaseView(Gtk.Stack):
     def unselect_all(self):
         """Unselects all the selected tracks."""
         self._set_selection(False)
-        self.selection_toolbar._add_to_playlist_button.set_sensitive(False)
-        self.selection_toolbar._remove_from_playlist_button.set_sensitive(False)
-        self.header_bar._selection_menu_label.set_text(_("Click on items to select them"))
+        self.selection_toolbar._add_to_playlist_button.set_sensitive(
+            False)
+        self.selection_toolbar._remove_from_playlist_button.set_sensitive(
+            False)
+        self.header_bar._selection_menu_label.set_text(
+            _("Click on items to select them"))
         self.queue_draw()

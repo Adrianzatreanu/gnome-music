@@ -36,7 +36,8 @@ class CellRendererClickablePixbuf(Gtk.CellRendererPixbuf):
     __gsignals__ = {'clicked': (GObject.SignalFlags.RUN_LAST, GObject.TYPE_NONE,
                                 (GObject.TYPE_STRING,))}
     __gproperties__ = {
-        'show_star': (GObject.TYPE_INT, 'Show star', 'show star',0 ,2 ,1 , GObject.ParamFlags.READWRITE)}
+        'show_star': (GObject.TYPE_INT, 'Show star', 'show star', 0, 2, 1,
+                      GObject.ParamFlags.READWRITE)}
 
     starIcon = 'starred-symbolic'
     nonStarIcon = 'non-starred-symbolic'
@@ -53,7 +54,8 @@ class CellRendererClickablePixbuf(Gtk.CellRendererPixbuf):
         self.hidden = hidden
         self.show_star = 0
 
-    def do_activate(self, event, widget, path, background_area, cell_area, flags):
+    def do_activate(self, event, widget, path, background_area,
+                    cell_area, flags):
         self.show_star = 0
         self.emit('clicked', path)
 
@@ -100,10 +102,12 @@ class StarHandlerWidget(object):
         star_renderer = CellRendererClickablePixbuf(self._parent.view,
                                                     hidden=hidden)
         star_renderer.connect("clicked", self._on_star_toggled)
-        list_widget.add_renderer(star_renderer, lambda *args: None, None)
+        list_widget.add_renderer(
+            star_renderer, lambda *args: None, None)
 
         cols[0].clear_attributes(star_renderer)
-        cols[0].add_attribute(star_renderer, 'show_star', self._star_index)
+        cols[0].add_attribute(
+            star_renderer, 'show_star', self._star_index)
 
     @log
     def _on_star_toggled(self, widget, path):

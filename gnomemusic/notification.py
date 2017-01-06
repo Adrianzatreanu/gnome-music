@@ -22,7 +22,9 @@
 # code, but you are not obligated to do so.  If you do not wish to do so,
 # delete this exception statement from your version.
 
-from gi.repository import GLib, Grl, Notify
+from gi.repository import GLib
+from gi.repository import Grl
+from gi.repository import Notify
 
 from gettext import gettext as _
 
@@ -43,19 +45,23 @@ class NotificationManager:
         self._notification = Notify.Notification()
 
         self._notification.set_category('x-gnome.music')
-        self._notification.set_hint('action-icons', GLib.Variant('b', True))
+        self._notification.set_hint(
+            'action-icons', GLib.Variant('b', True))
         self._notification.set_hint('resident', GLib.Variant('b', True))
-        self._notification.set_hint('desktop-entry', GLib.Variant('s', 'gnome-music'))
+        self._notification.set_hint(
+            'desktop-entry', GLib.Variant('s', 'gnome-music'))
 
     @log
     def _set_actions(self, playing):
         self._notification.clear_actions()
 
-        if (Notify.VERSION_MINOR > 7) or (Notify.VERSION_MINOR == 7 and Notify.VERSION_MICRO > 5):
+        if (Notify.VERSION_MINOR > 7) or (
+                Notify.VERSION_MINOR == 7 and Notify.VERSION_MICRO > 5):
             self._notification.add_action('media-skip-backward', _("Previous"),
                                           self._go_previous, None)
             if playing:
-                self._notification.add_action('media-playback-pause', _("Pause"),
+                self._notification.add_action('media-playback-pause',
+                                              _("Pause"),
                                               self._pause, None)
             else:
                 self._notification.add_action('media-playback-start', _("Play"),

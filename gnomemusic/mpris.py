@@ -28,7 +28,6 @@ from gnomemusic.grilo import grilo
 from gnomemusic.playlists import Playlists
 import gnomemusic.utils as utils
 
-from gettext import gettext as _
 from gi.repository import GLib
 from gi.repository import Gio
 from gnomemusic import log
@@ -37,14 +36,18 @@ logger = logging.getLogger(__name__)
 
 
 class Server:
+
     def __init__(self, con, path):
         method_outargs = {}
         method_inargs = {}
         for interface in Gio.DBusNodeInfo.new_for_xml(self.__doc__).interfaces:
 
             for method in interface.methods:
-                method_outargs[method.name] = '(' + ''.join([arg.signature for arg in method.out_args]) + ')'
-                method_inargs[method.name] = tuple(arg.signature for arg in method.in_args)
+                method_outargs[
+                    method.name] = '(' + ''.join(
+                    [arg.signature for arg in method.out_args]) + ')'
+                method_inargs[method.name] = tuple(
+                    arg.signature for arg in method.in_args)
 
             con.register_object(object_path=path,
                                 interface_info=interface,
@@ -72,7 +75,8 @@ class Server:
         result = getattr(self, method_name)(*args)
 
         # out_args is atleast (signature1). We therefore always wrap the result
-        # as a tuple. Refer to https://bugzilla.gnome.org/show_bug.cgi?id=765603
+        # as a tuple. Refer to
+        # https://bugzilla.gnome.org/show_bug.cgi?id=765603
         result = (result,)
 
         out_args = self.method_outargs[method_name]
@@ -220,16 +224,23 @@ class MediaPlayer2Service(Server):
         self.app = app
         self.player = app.get_active_window().player
         self.player.connect('current-changed', self._on_current_changed)
-        self.player.connect('thumbnail-updated', self._on_thumbnail_updated)
-        self.player.connect('playback-status-changed', self._on_playback_status_changed)
-        self.player.connect('repeat-mode-changed', self._on_repeat_mode_changed)
+        self.player.connect('thumbnail-updated',
+                            self._on_thumbnail_updated)
+        self.player.connect('playback-status-changed',
+                            self._on_playback_status_changed)
+        self.player.connect('repeat-mode-changed',
+                            self._on_repeat_mode_changed)
         self.player.connect('volume-changed', self._on_volume_changed)
-        self.player.connect('prev-next-invalidated', self._on_prev_next_invalidated)
+        self.player.connect('prev-next-invalidated',
+                            self._on_prev_next_invalidated)
         self.player.connect('seeked', self._on_seeked)
-        self.player.connect('playlist-changed', self._on_playlist_changed)
+        self.player.connect('playlist-changed',
+                            self._on_playlist_changed)
         playlists = Playlists.get_default()
-        playlists.connect('playlist-created', self._on_playlists_count_changed)
-        playlists.connect('playlist-deleted', self._on_playlists_count_changed)
+        playlists.connect('playlist-created',
+                          self._on_playlists_count_changed)
+        playlists.connect('playlist-deleted',
+                          self._on_playlists_count_changed)
         grilo.connect('ready', self._on_grilo_ready)
         self.playlists = []
         self.playlist = None
@@ -278,7 +289,8 @@ class MediaPlayer2Service(Server):
         try:
             trackNumber = media.get_track_number()
             assert trackNumber is not None
-            metadata['xesam:trackNumber'] = GLib.Variant('i', trackNumber)
+            metadata['xesam:trackNumber'] = GLib.Variant(
+                'i', trackNumber)
         except:
             pass
 
@@ -302,7 +314,6 @@ class MediaPlayer2Service(Server):
             metadata['xesam:title'] = GLib.Variant('s', title)
         except:
             pass
-
 
         album = utils.get_album_title(media)
         metadata['xesam:album'] = GLib.Variant('s', album)
@@ -402,7 +413,9 @@ class MediaPlayer2Service(Server):
 
         self.PropertiesChanged(MediaPlayer2Service.MEDIA_PLAYER2_PLAYER_IFACE,
                                {
-                                   'Metadata': GLib.Variant('a{sv}', self._get_metadata()),
+                                   'Metadata': GLib.Variant(
+                                       'a{sv}',
+                                                        self._get_metadata()),
                                    'CanPlay': GLib.Variant('b', True),
                                    'CanPause': GLib.Variant('b', True),
                                },
@@ -412,7 +425,9 @@ class MediaPlayer2Service(Server):
     def _on_thumbnail_updated(self, player, data=None):
         self.PropertiesChanged(MediaPlayer2Service.MEDIA_PLAYER2_PLAYER_IFACE,
                                {
-                                   'Metadata': GLib.Variant('a{sv}', self._get_metadata()),
+                                   'Metadata': GLib.Variant(
+                                       'a{sv}',
+                                                        self._get_metadata()),
                                },
                                [])
 
@@ -420,7 +435,8 @@ class MediaPlayer2Service(Server):
     def _on_playback_status_changed(self, data=None):
         self.PropertiesChanged(MediaPlayer2Service.MEDIA_PLAYER2_PLAYER_IFACE,
                                {
-                                   'PlaybackStatus': GLib.Variant('s', self._get_playback_status()),
+                                   'PlaybackStatus': GLib.Variant('s',
+                                                 self._get_playback_status()),
                                },
                                [])
 
@@ -428,8 +444,12 @@ class MediaPlayer2Service(Server):
     def _on_repeat_mode_changed(self, player, data=None):
         self.PropertiesChanged(MediaPlayer2Service.MEDIA_PLAYER2_PLAYER_IFACE,
                                {
-                                   'LoopStatus': GLib.Variant('s', self._get_loop_status()),
-                                   'Shuffle': GLib.Variant('b', self.player.repeat == RepeatType.SHUFFLE),
+                                   'LoopStatus': GLib.Variant('s',
+                                                 self._get_loop_status()),
+                                   'Shuffle': GLib.Variant(
+                                       'b',
+                                                self.player.repeat == (
+                                                         RepeatType.SHUFFLE)),
                                },
                                [])
 
@@ -437,7 +457,8 @@ class MediaPlayer2Service(Server):
     def _on_volume_changed(self, player, data=None):
         self.PropertiesChanged(MediaPlayer2Service.MEDIA_PLAYER2_PLAYER_IFACE,
                                {
-                                   'Volume': GLib.Variant('d', self.player.get_volume()),
+                                   'Volume': GLib.Variant('d',
+                                               self.player.get_volume()),
                                },
                                [])
 
@@ -445,8 +466,10 @@ class MediaPlayer2Service(Server):
     def _on_prev_next_invalidated(self, player, data=None):
         self.PropertiesChanged(MediaPlayer2Service.MEDIA_PLAYER2_PLAYER_IFACE,
                                {
-                                   'CanGoNext': GLib.Variant('b', self.player.has_next()),
-                                   'CanGoPrevious': GLib.Variant('b', self.player.has_previous()),
+                                   'CanGoNext': GLib.Variant('b',
+                                                  self.player.has_next()),
+                                   'CanGoPrevious': GLib.Variant('b',
+                                                  self.player.has_previous()),
                                },
                                [])
 
@@ -473,27 +496,35 @@ class MediaPlayer2Service(Server):
         self.playlist = self.player.playlist
         self._on_playlist_modified()
 
-        self.PropertiesChanged(MediaPlayer2Service.MEDIA_PLAYER2_PLAYLISTS_IFACE,
+        self.PropertiesChanged(MediaPlayer2Service.
+                        MEDIA_PLAYER2_PLAYLISTS_IFACE,
                                {
-                                'ActivePlaylist': GLib.Variant('(b(oss))', self._get_active_playlist()),
+                                'ActivePlaylist': GLib.Variant('(b(oss))',
+                                                 self._get_active_playlist()),
                                },
                                [])
 
         self.playlist_insert_handler = \
-            self.playlist.connect('row-inserted', self._on_playlist_modified)
+            self.playlist.connect(
+                'row-inserted', self._on_playlist_modified)
         self.playlist_delete_handler = \
-            self.playlist.connect('row-deleted', self._on_playlist_modified)
+            self.playlist.connect(
+                'row-deleted', self._on_playlist_modified)
 
     @log
     def _on_playlist_modified(self, path=None, _iter=None, data=None):
         if self.player.currentTrack and self.player.currentTrack.valid():
             path = self.player.currentTrack.get_path()
-            currentTrack = self.player.playlist[path][self.player.playlistField]
+            currentTrack = self.player.playlist[
+                path][self.player.playlistField]
             track_list = self._get_track_list()
-            self.TrackListReplaced(track_list, self._get_media_id(currentTrack))
-            self.PropertiesChanged(MediaPlayer2Service.MEDIA_PLAYER2_TRACKLIST_IFACE,
+            self.TrackListReplaced(
+                track_list, self._get_media_id(currentTrack))
+            self.PropertiesChanged(MediaPlayer2Service.
+                                   MEDIA_PLAYER2_TRACKLIST_IFACE,
                                    {
-                                       'Tracks': GLib.Variant('ao', track_list),
+                                       'Tracks': GLib.Variant('ao',
+                                                              track_list),
                                    },
                                    [])
 
@@ -501,9 +532,11 @@ class MediaPlayer2Service(Server):
     def _reload_playlists(self):
         def get_playlists_callback(playlists):
             self.playlists = playlists
-            self.PropertiesChanged(MediaPlayer2Service.MEDIA_PLAYER2_PLAYLISTS_IFACE,
+            self.PropertiesChanged(MediaPlayer2Service.
+                                   MEDIA_PLAYER2_PLAYLISTS_IFACE,
                                    {
-                                       'PlaylistCount': GLib.Variant('u', len(playlists)),
+                                       'PlaylistCount': GLib.Variant('u',
+                                                         len(playlists)),
                                    },
                                    [])
 
@@ -547,9 +580,11 @@ class MediaPlayer2Service(Server):
             model = window.views[2].model
             if model.iter_n_children(None):
                 _iter = model.get_iter_first()
-                self._play_first_song(model, model.get_path(_iter), _iter)
+                self._play_first_song(
+                    model, model.get_path(_iter), _iter)
             else:
-                self.first_song_handler = model.connect('row-inserted', self._play_first_song)
+                self.first_song_handler = model.connect(
+                    'row-inserted', self._play_first_song)
 
     def Seek(self, offset):
         self.player.set_position(offset, True, True)
@@ -567,12 +602,14 @@ class MediaPlayer2Service(Server):
                              '/org/mpris/MediaPlayer2',
                              MediaPlayer2Service.MEDIA_PLAYER2_PLAYER_IFACE,
                              'Seeked',
-                             GLib.Variant.new_tuple(GLib.Variant('x', position)))
+                             GLib.Variant.new_tuple(GLib.Variant('x',
+                                                                 position)))
 
     def GetTracksMetadata(self, track_ids):
         metadata = []
         for track_id in track_ids:
-            metadata.append(self._get_metadata(self._get_media_from_id(track_id)))
+            metadata.append(self._get_metadata(
+                self._get_media_from_id(track_id)))
         return metadata
 
     def AddTrack(self, uri, after_track, set_as_current):
@@ -598,34 +635,42 @@ class MediaPlayer2Service(Server):
                              '/org/mpris/MediaPlayer2',
                              MediaPlayer2Service.MEDIA_PLAYER2_TRACKLIST_IFACE,
                              'TrackListReplaced',
-                             GLib.Variant.new_tuple(GLib.Variant('ao', tracks),
-                                                    GLib.Variant('o', current_track)))
+                             GLib.Variant.new_tuple(GLib.Variant('ao',
+                                                                 tracks),
+                                                    GLib.Variant('o',
+                                                           current_track)))
 
     def TrackAdded(self, metadata, after_track):
         self.con.emit_signal(None,
                              '/org/mpris/MediaPlayer2',
                              MediaPlayer2Service.MEDIA_PLAYER2_TRACKLIST_IFACE,
                              'TrackAdded',
-                             GLib.Variant.new_tuple(GLib.Variant('a{sv}', metadata),
-                                                    GLib.Variant('o', after_track)))
+                             GLib.Variant.new_tuple(GLib.Variant('a{sv}',
+                                                                 metadata),
+                                                    GLib.Variant('o',
+                                                                 after_track)))
 
     def TrackRemoved(self, track_id):
         self.con.emit_signal(None,
                              '/org/mpris/MediaPlayer2',
                              MediaPlayer2Service.MEDIA_PLAYER2_TRACKLIST_IFACE,
                              'TrackRemoved',
-                             GLib.Variant.new_tuple(GLib.Variant('o', track_id)))
+                             GLib.Variant.new_tuple(GLib.Variant('o',
+                                 track_id)))
 
     def TrackMetadataChanged(self, track_id, metadata):
         self.con.emit_signal(None,
                              '/org/mpris/MediaPlayer2',
                              MediaPlayer2Service.MEDIA_PLAYER2_TRACKLIST_IFACE,
                              'TrackMetadataChanged',
-                             GLib.Variant.new_tuple(GLib.Variant('o', track_id),
-                                                    GLib.Variant('a{sv}', metadata)))
+                             GLib.Variant.new_tuple(GLib.Variant('o',
+                                 track_id),
+                                                    GLib.Variant('a{sv}',
+                                 metadata)))
 
     def ActivatePlaylist(self, playlist_path):
-        playlist_id = self._get_playlist_from_path(playlist_path).get_id()
+        playlist_id = self._get_playlist_from_path(
+            playlist_path).get_id()
         self.app._window.views[3].activate_playlist(playlist_id)
 
     def GetPlaylists(self, index, max_count, order, reverse):
@@ -635,14 +680,16 @@ class MediaPlayer2Service(Server):
                       utils.get_media_title(playlist) or '', '')
                      for playlist in self.playlists]
         return playlists[index:index + max_count] if not reverse \
-            else playlists[index + max_count - 1:index - 1 if index - 1 >= 0 else None:-1]
+            else playlists[
+        index + max_count - 1:index - 1 if index - 1 >= 0 else None:-1]
 
     def PlaylistChanged(self, playlist):
         self.con.emit_signal(None,
                              '/org/mpris/MediaPlayer2',
                              MediaPlayer2Service.MEDIA_PLAYER2_PLAYLISTS_IFACE,
                              'PlaylistChanged',
-                             GLib.Variant.new_tuple(GLib.Variant('(oss)', playlist)))
+                             GLib.Variant.new_tuple(GLib.Variant('(oss)',
+                                 playlist)))
 
     def Get(self, interface_name, property_name):
         return self.GetAll(interface_name)[property_name]
@@ -669,10 +716,12 @@ class MediaPlayer2Service(Server):
             }
         elif interface_name == MediaPlayer2Service.MEDIA_PLAYER2_PLAYER_IFACE:
             return {
-                'PlaybackStatus': GLib.Variant('s', self._get_playback_status()),
+                'PlaybackStatus': GLib.Variant('s',
+                           self._get_playback_status()),
                 'LoopStatus': GLib.Variant('s', self._get_loop_status()),
                 'Rate': GLib.Variant('d', 1.0),
-                'Shuffle': GLib.Variant('b', self.player.repeat == RepeatType.SHUFFLE),
+                'Shuffle': GLib.Variant('b',
+                self.player.repeat == RepeatType.SHUFFLE),
                 'Metadata': GLib.Variant('a{sv}', self._get_metadata()),
                 'Volume': GLib.Variant('d', self.player.get_volume()),
                 'Position': GLib.Variant('x', self.player.get_position()),
@@ -680,21 +729,26 @@ class MediaPlayer2Service(Server):
                 'MaximumRate': GLib.Variant('d', 1.0),
                 'CanGoNext': GLib.Variant('b', self.player.has_next()),
                 'CanGoPrevious': GLib.Variant('b', self.player.has_previous()),
-                'CanPlay': GLib.Variant('b', self.player.currentTrack is not None),
-                'CanPause': GLib.Variant('b', self.player.currentTrack is not None),
+                'CanPlay': GLib.Variant('b',
+                        self.player.currentTrack is not None),
+                'CanPause': GLib.Variant('b',
+                     self.player.currentTrack is not None),
                 'CanSeek': GLib.Variant('b', True),
                 'CanControl': GLib.Variant('b', True),
             }
-        elif interface_name == MediaPlayer2Service.MEDIA_PLAYER2_TRACKLIST_IFACE:
+        elif interface_name == (
+			MediaPlayer2Service.MEDIA_PLAYER2_TRACKLIST_IFACE):
             return {
                 'Tracks': GLib.Variant('ao', self._get_track_list()),
                 'CanEditTracks': GLib.Variant('b', False)
             }
-        elif interface_name == MediaPlayer2Service.MEDIA_PLAYER2_PLAYLISTS_IFACE:
+        elif interface_name == (
+			MediaPlayer2Service.MEDIA_PLAYER2_PLAYLISTS_IFACE):
             return {
                 'PlaylistCount': GLib.Variant('u', len(self.playlists)),
                 'Orderings': GLib.Variant('as', ['Alphabetical']),
-                'ActivePlaylist': GLib.Variant('(b(oss))', self._get_active_playlist()),
+                'ActivePlaylist': GLib.Variant('(b(oss))',
+                           self._get_active_playlist()),
             }
         elif interface_name == 'org.freedesktop.DBus.Properties':
             return {}
@@ -739,9 +793,13 @@ class MediaPlayer2Service(Server):
                              '/org/mpris/MediaPlayer2',
                              'org.freedesktop.DBus.Properties',
                              'PropertiesChanged',
-                             GLib.Variant.new_tuple(GLib.Variant('s', interface_name),
-                                                    GLib.Variant('a{sv}', changed_properties),
-                                                    GLib.Variant('as', invalidated_properties)))
+                             GLib.Variant.new_tuple(GLib.Variant('s',
+                            interface_name),
+                                                    GLib.Variant(
+                                                        'a{sv}',
+                             changed_properties),
+                                                    GLib.Variant('as',
+                              invalidated_properties)))
 
     def Introspect(self):
         return self.__doc__

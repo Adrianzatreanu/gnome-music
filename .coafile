@@ -1,0 +1,20 @@
+[Default]
+files = gnomemusic/**/*.py
+
+max_line_length = 80
+use_spaces = True
+
+[python]
+bears = SpaceConsistencyBear, PyUnusedCodeBear
+language = Python
+
+default_actions = *: ApplyPatchAction
+
+[autopep8]
+bears = PEP8Bear
+
+default_actions = PEP8Bear: ApplyPatchAction
+
+[linelength]  # Sometimes autopep8 makes too long lines, need to check after!
+bears = LineLengthBear
+ignore_length_regex = ^.*https?://

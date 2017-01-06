@@ -149,14 +149,15 @@ class AlbumsView(BaseView):
             child = self._create_album_item(item)
             self.view.add(child)
         elif remaining == 0:
-                self.window.pop_loading_notification()
-                self.view.show()
+            self.window.pop_loading_notification()
+            self.view.show()
 
     def _create_album_item(self, item):
         artist = utils.get_artist_name(item)
         title = utils.get_media_title(item)
 
-        builder = Gtk.Builder.new_from_resource('/org/gnome/Music/AlbumCover.ui')
+        builder = Gtk.Builder.new_from_resource(
+            '/org/gnome/Music/AlbumCover.ui')
 
         child = Gtk.FlowBoxChild()
         child.image = builder.get_object('image')
@@ -174,7 +175,8 @@ class AlbumsView(BaseView):
         # keep the size request equal to all other icons to get proper
         # alignment with GtkFlowBox.
         child.image.set_property("width-request", ArtSize.medium.width)
-        child.image.set_property("height-request", ArtSize.medium.height)
+        child.image.set_property(
+            "height-request", ArtSize.medium.height)
 
         child.events.connect('button-release-event',
                              self._on_album_event_triggered,
@@ -211,7 +213,8 @@ class AlbumsView(BaseView):
     def _on_child_toggled(self, check, pspec, child):
         if check.get_active() and not child.media_item in self.albums_selected:
             self.albums_selected.append(child.media_item)
-        elif not check.get_active() and child.media_item in self.albums_selected:
+        elif not check.get_active() and (
+                child.media_item in self.albums_selected):
             self.albums_selected.remove(child.media_item)
 
         self.update_header_from_selection(len(self.albums_selected))
@@ -239,12 +242,14 @@ class AlbumsView(BaseView):
         signal for performance purposes.
         """
         for child in self.view.get_children():
-            GObject.signal_handler_block(child.check, child.check_handler_id)
+            GObject.signal_handler_block(
+                child.check, child.check_handler_id)
 
             # Set the checkbutton state without emiting the signal
             child.check.set_active(selected)
 
-            GObject.signal_handler_unblock(child.check, child.check_handler_id)
+            GObject.signal_handler_unblock(
+                child.check, child.check_handler_id)
 
         self.update_header_from_selection(len(self.albums_selected))
 
