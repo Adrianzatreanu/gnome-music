@@ -41,10 +41,10 @@ class PlaylistDialog():
 
     @log
     def __init__(self, parent):
+        self.window = parent
         self.ui = Gtk.Builder()
         self.ui.add_from_resource('/org/gnome/Music/PlaylistDialog.ui')
         self.dialog_box = self.ui.get_object('dialog1')
-        self.dialog_box.set_transient_for(parent)
 
         self.view = self.ui.get_object('treeview1')
         self.view.set_activate_on_single_click(False)
@@ -83,6 +83,8 @@ class PlaylistDialog():
         self.playlist = Playlists.get_default()
         self.playlist.connect('playlist-created',
                               self._on_playlist_created)
+
+        self._playlist_name = None
 
     @log
     def get_selected(self):
@@ -170,9 +172,21 @@ class PlaylistDialog():
 
     @log
     def _on_editing_done(self, sender, data=None):
-        if self._new_playlist_entry.get_text() != '':
-            self.playlist.create_playlist(
-                self._new_playlist_entry.get_text())
+        text_entered = self._new_playlist_entry.get_text()
+        if text_entered:
+            existing_playlists = [row[0] for row in self.model]
+            if text_entered in existing_playlists:
+                tooltip = "Playlist with that name exists"
+                self._new_playlist_button.set_tooltip_text(tooltip)
+                label = "Use existing"
+                self._new_playlist_button.set_label(label)
+                self._playlist_name = text_entered
+            else:
+                self.playlist.create_playlist(
+                    self._new_playlist_entry.get_text())
+                self._playlist_name = None
+                label = "Add"
+                self._new_playlist_button.set_label(label)
 
     @log
     def _on_playlist_created(self, playlists, item):
